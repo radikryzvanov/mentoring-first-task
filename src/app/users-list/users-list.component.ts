@@ -1,36 +1,33 @@
 import { NgFor } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
+import { UsersApiService } from '../users-api.service';
+import { User } from '../interfaces/user.interface';
+import { UserCartComponent } from "./user-cart/user-cart.component";
 
 @Component({
   selector: 'app-users-list',
   standalone: true,
-  imports: [NgFor],
+  imports: [NgFor, UserCartComponent],
   templateUrl: './users-list.component.html',
   styleUrl: './users-list.component.scss',
 })
 export class UsersListComponent {
-  readonly apiService = inject(HttpClient);
-  users: any = [];
+  readonly usersApiService = inject(UsersApiService);
+  users: User[] = [];
 
   constructor() {
-    this.apiService
-      .get('https://jsonplaceholder.typicode.com/users')
-      .subscribe((response: any) => {
-        this.users = response;
-        console.log('USERS: ', this.users);
-      });
+    this.usersApiService.getUsers().subscribe((response: any) => {
+      this.users = response;
+      console.log('USERS: ', this.users);
+    });
   }
   deleteUser(id: number) {
-    this.users = this.users.filter(
-      // @ts-ignore
-      (item) => {
-        if (id === item.id) {
-          return false;
-        } else {
-          return true;
-        }
+    this.users = this.users.filter((item: { id: number }) => {
+      if (id === item.id) {
+        return false;
+      } else {
+        return true;
       }
-    );
+    });
   }
 }
