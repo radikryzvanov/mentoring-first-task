@@ -1,6 +1,7 @@
-<p>КОМПОНЕНТ СПИСКА ЮЗЕРОВ</p>
+КОМПОНЕНТ СПИСКА ЮЗЕРОВ
+
 <div style="display: flex; width: 100%; flex-wrap: wrap">
-  <div *ngFor="let user of users">
+  <div *ngFor="let user of usersService.usersSubject$ | async">
     <app-user-cart [user]="user" (deleteUser)="deleteUser($event)"></app-user-cart>
   </div>
 </div>

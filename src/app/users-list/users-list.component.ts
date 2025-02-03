@@ -1,33 +1,28 @@
-import { NgFor } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { UsersApiService } from '../users-api.service';
-import { User } from '../interfaces/user.interface';
-import { UserCartComponent } from "./user-cart/user-cart.component";
+import { AsyncPipe, NgFor } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { UsersApiService } from '../services/users-api.service';
+import { UserCartComponent } from './user-cart/user-cart.component';
+import { UsersService } from '../services/users.service';
 
 @Component({
   selector: 'app-users-list',
   standalone: true,
-  imports: [NgFor, UserCartComponent],
+  imports: [NgFor, UserCartComponent, AsyncPipe],
   templateUrl: './users-list.component.html',
   styleUrl: './users-list.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UsersListComponent {
   readonly usersApiService = inject(UsersApiService);
-  users: User[] = [];
+  readonly usersService = inject(UsersService);
 
   constructor() {
     this.usersApiService.getUsers().subscribe((response: any) => {
-      this.users = response;
-      console.log('USERS: ', this.users);
+      this.usersService.setUsers(response);
     });
   }
+
   deleteUser(id: number) {
-    this.users = this.users.filter((item: { id: number }) => {
-      if (id === item.id) {
-        return false;
-      } else {
-        return true;
-      }
-    });
+    this.usersService.deleteUser(id);
   }
 }
