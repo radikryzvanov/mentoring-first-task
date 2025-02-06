@@ -1,7 +1,7 @@
-КОМПОНЕНТ СПИСКА ЮЗЕРОВ
+<app-create-user-form (createUser)="createUser($event)"></app-create-user-form>
 
 <div style="display: flex; width: 100%; flex-wrap: wrap">
-  <div *ngFor="let user of usersService.usersSubject$ | async">
+  <div *ngFor="let user of usersService.users$ | async">
     <app-user-cart [user]="user" (deleteUser)="deleteUser($event)"></app-user-cart>
   </div>
 </div>
