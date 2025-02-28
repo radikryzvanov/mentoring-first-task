@@ -1,32 +1,46 @@
-import { AsyncPipe, NgFor } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+} from '@angular/core';
 import { UsersApiService } from '../services/users-api.service';
-import { UserCartComponent } from './user-cart/user-cart.component';
 import { UsersService } from '../services/users.service';
+import { UserCartComponent } from './user-cart/user-cart.component';
 import { CreateUserFormComponent } from '../create-user-form/create-user-form.component';
+import { NgFor, AsyncPipe } from '@angular/common';
+import { LocalStorageService } from '../services/local-storage.service';
 
 @Component({
   selector: 'app-users-list',
   standalone: true,
-  imports: [NgFor, UserCartComponent, AsyncPipe, CreateUserFormComponent],
+  imports: [UserCartComponent, CreateUserFormComponent, NgFor, AsyncPipe],
   templateUrl: './users-list.component.html',
-  styleUrl: './users-list.component.scss',
+  styleUrls: ['./users-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UsersListComponent {
+export class UsersListComponent implements OnInit {
   readonly usersApiService = inject(UsersApiService);
   readonly usersService = inject(UsersService);
+  localStorageService = inject(LocalStorageService);
 
-  constructor() {
-    this.usersApiService.getUsers().subscribe((response: any) => {
-      this.usersService.setUsers(response);
-    });
+  constructor() {}
 
-    this.usersService.users$.subscribe((users) => console.log(users));
+  ngOnInit(): void {
+    const usersFromStorage =
+      this.localStorageService.getFromLocalStorage('users');
+
+    if (usersFromStorage.length) {
+      this.usersService.setUsers(usersFromStorage);
+    } else {
+      this.usersApiService
+        .getUsers()
+        .subscribe((users) => this.usersService.setUsers(users));
+    }
   }
 
   deleteUser(id: number) {
-    this.usersService.deleteUser(id);
+    this.usersService.deleteUser(id); // Удаляем пользователя
   }
 
   editUser(user: any) {
@@ -35,19 +49,19 @@ export class UsersListComponent {
       company: {
         name: user.companyName,
       },
-    });
+    }); // Редактируем пользователя
   }
 
-  public createUser(formDate: any) {
+  createUser(formData: any) {
     this.usersService.createUser({
       id: new Date().getTime(),
-      name: formDate.name,
-      email: formDate.email,
-      website: formDate.website,
+      name: formData.name,
+      email: formData.email,
+      website: formData.website,
       company: {
-        name: formDate.companyName,
+        name: formData.companyName,
       },
-    });
-    console.log('ДАННЫЕ ФОРМЫ:', event);
+    }); // Создаем нового пользователя
+    console.log('ДАННЫЕ ФОРМЫ:', formData); // Для отладки
   }
 }
